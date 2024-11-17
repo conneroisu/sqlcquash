@@ -21,13 +21,13 @@ type Config struct {
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "sqlcaush",
+	Use:   "sqlcquash",
 	Short: "A cli tools to squash sql files into single files based on type.",
 	Long: `A cli tools to squash sql files into single files based on type configured in config file.
 
 Example:
 
-sqlcaush combine -c config.yaml
+sqlcquash combine -c config.yaml
 `,
 }
 

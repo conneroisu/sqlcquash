@@ -18,7 +18,7 @@ var combineCmd = &cobra.Command{
 Combines defined schemas, queries and seeds into single output files as defined in the config file ("sqlcquash.yaml").
 	`,
 	Example: `
-	sqlcaush combine
+	sqlcquash combine
 	`,
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		configPath, err := FindConfigFile()
