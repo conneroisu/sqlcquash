@@ -8,15 +8,17 @@ import (
 )
 
 const content = `
+# This file is used to configure sqlcquash.
+#
 ---
 version: 1
 dbs:
-  - schemas_path: ./schemas/*.sql
-    queries_path: ./queries/*.sql
-    seeds_path: ./seeds/*.sql
-    output_schema: ./combined/schema.sql
-    output_queries: ./combined/queries.sql
-    output_seeds: ./combined/seeds.sql
+  - schemas: ./schemas/*.sql
+    queries: ./queries/*.sql
+    seeds: ./seeds/*.sql
+    schema: ./combined/schema.sql
+    query: ./combined/queries.sql
+    seed: ./combined/seeds.sql
 `
 
 func TestMarshal(t *testing.T) {
@@ -26,4 +28,10 @@ func TestMarshal(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.Len(t, c.Dbs, 1)
+	assert.Equal(t, "./combined/schema.sql", c.Dbs[0].OutputSchema)
+	assert.Equal(t, "./combined/queries.sql", c.Dbs[0].OutputQueries)
+	assert.Equal(t, "./combined/seeds.sql", c.Dbs[0].OutputSeeds)
+	assert.Equal(t, "./schemas/*.sql", c.Dbs[0].SchemasPath)
+	assert.Equal(t, "./queries/*.sql", c.Dbs[0].QueriesPath)
+	assert.Equal(t, "./seeds/*.sql", c.Dbs[0].SeedsPath)
 }
