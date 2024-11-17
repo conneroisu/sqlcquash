@@ -10,12 +10,12 @@ import (
 type Config struct {
 	Version int `yaml:"version"`
 	Dbs     []struct {
-		SchemasPath   string `yaml:"schemas_path"`
-		QueriesPath   string `yaml:"queries_path"`
-		SeedsPath     string `yaml:"seeds_path"`
-		OutputSchema  string `yaml:"output_schema"`
-		OutputQueries string `yaml:"output_queries"`
-		OutputSeeds   string `yaml:"output_seeds"`
+		SchemasPath   string `yaml:"schemas"`
+		QueriesPath   string `yaml:"queries"`
+		SeedsPath     string `yaml:"seeds"`
+		OutputSchema  string `yaml:"schema"`
+		OutputQueries string `yaml:"query"`
+		OutputSeeds   string `yaml:"seed"`
 	} `yaml:"dbs"`
 }
 

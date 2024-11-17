@@ -46,7 +46,7 @@ Combines defined schemas, queries and seeds into single output files as defined 
 		if err != nil {
 			return err
 		}
-		cmd.Printf("Changing directory to: %s\n", dir)
+		cmd.Printf("Changed directory to: %s\n", dir)
 		for _, inst := range config.Dbs {
 			schemas, err := catFiles(inst.SchemasPath)
 			if err != nil {
