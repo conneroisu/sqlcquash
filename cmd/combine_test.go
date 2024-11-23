@@ -19,6 +19,8 @@ dbs:
     schema: ./combined/schema.sql
     query: ./combined/queries.sql
     seed: ./combined/seeds.sql
+    fmt: sleek -i 4
+    fmt-contains: queries
 `
 
 func TestMarshal(t *testing.T) {
@@ -34,4 +36,6 @@ func TestMarshal(t *testing.T) {
 	assert.Equal(t, "./schemas/*.sql", c.Dbs[0].SchemasPath)
 	assert.Equal(t, "./queries/*.sql", c.Dbs[0].QueriesPath)
 	assert.Equal(t, "./seeds/*.sql", c.Dbs[0].SeedsPath)
+	assert.Equal(t, "sleek -i 4", c.Dbs[0].Fmt)
+	assert.Equal(t, "queries", c.Dbs[0].FmtContains)
 }

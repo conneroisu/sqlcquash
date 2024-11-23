@@ -8,15 +8,20 @@ import (
 
 // Config is the configuration for the application.
 type Config struct {
-	Version int `yaml:"version"`
-	Dbs     []struct {
-		SchemasPath   string `yaml:"schemas"`
-		QueriesPath   string `yaml:"queries"`
-		SeedsPath     string `yaml:"seeds"`
-		OutputSchema  string `yaml:"schema"`
-		OutputQueries string `yaml:"query"`
-		OutputSeeds   string `yaml:"seed"`
-	} `yaml:"dbs"`
+	Version int        `yaml:"version"`
+	Dbs     []DbConfig `yaml:"dbs"`
+}
+
+// DbConfig contains the configuration for a single database.
+type DbConfig struct {
+	SchemasPath   string `yaml:"schemas"`
+	QueriesPath   string `yaml:"queries"`
+	SeedsPath     string `yaml:"seeds"`
+	OutputSchema  string `yaml:"schema"`
+	OutputQueries string `yaml:"query"`
+	OutputSeeds   string `yaml:"seed"`
+	Fmt           string `yaml:"fmt"`
+	FmtContains   string `yaml:"fmt-contains"`
 }
 
 // rootCmd represents the base command when called without any subcommands

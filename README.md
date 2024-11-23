@@ -32,7 +32,8 @@ dbs:
     schema: ./combined/schema.sql
     query: ./combined/queries.sql
     seed: ./combined/seeds.sql
-        
+    fmt: sleek -i 4
+    fmt-contains: queries
 ```
 
 ### Schemas

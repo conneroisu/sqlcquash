@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"bytes"
 	"io"
+	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -23,7 +26,7 @@ var combineCmd = &cobra.Command{
 Combines defined schemas, queries and seeds into single output files as defined in the config file ("sqlcquash.yaml").
 	`,
 	Example: `
-	sqlcquash combine
+sqlcquash combine
 	`,
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		configPath, err := FindConfigFile()
@@ -53,64 +56,120 @@ Combines defined schemas, queries and seeds into single output files as defined 
 		}
 		cmd.Printf("Changed directory to: %s\n", dir)
 		for _, inst := range config.Dbs {
-			schemas, err := catFiles(inst.SchemasPath)
-			if err != nil {
-				return err
-			}
-			queries, err := catFiles(inst.QueriesPath)
-			if err != nil {
-				return err
-			}
-			seeds, err := catFiles(inst.SeedsPath)
-			if err != nil {
-				return err
-			}
-			schemaFile, err := os.Create(inst.OutputSchema)
-			if err != nil {
-				return err
-			}
-			defer schemaFile.Close()
-			if err != nil {
-				return err
-			}
-			queryFile, err := os.Create(inst.OutputQueries)
-			if err != nil {
-				return err
-			}
-			defer queryFile.Close()
-			if err != nil {
-				return err
-			}
-			seedFile, err := os.Create(inst.OutputSeeds)
-			if err != nil {
-				return err
-			}
-			defer seedFile.Close()
-			if err != nil {
-				return err
-			}
-			_, err = schemaFile.WriteString(
-				header + "\n" +
-					strings.Join(schemas, "\n"))
-			if err != nil {
-				return err
-			}
-
-			_, err = queryFile.WriteString(
-				header + "\n" +
-					strings.Join(queries, "\n"))
-			if err != nil {
-				return err
-			}
-			_, err = seedFile.WriteString(
-				header + "\n" +
-					strings.Join(seeds, "\n"))
+			err = handleInstance(cmd, inst)
 			if err != nil {
 				return err
 			}
 		}
 		return nil
 	},
+}
+
+func handleInstance(
+	cmd *cobra.Command,
+	inst DbConfig,
+) error {
+	schemas, err := catFiles(inst.SchemasPath)
+	if err != nil {
+		return err
+	}
+	queries, err := catFiles(inst.QueriesPath)
+	if err != nil {
+		return err
+	}
+	seeds, err := catFiles(inst.SeedsPath)
+	if err != nil {
+		return err
+	}
+	schemaFile, err := os.Create(inst.OutputSchema)
+	if err != nil {
+		return err
+	}
+	defer schemaFile.Close()
+	queryFile, err := os.Create(inst.OutputQueries)
+	if err != nil {
+		return err
+	}
+	defer queryFile.Close()
+	seedFile, err := os.Create(inst.OutputSeeds)
+	if err != nil {
+		return err
+	}
+	defer seedFile.Close()
+	_, err = schemaFile.WriteString(
+		header + "\n" +
+			strings.Join(schemas, "\n"))
+	if err != nil {
+		return err
+	}
+
+	_, err = queryFile.WriteString(
+		header + "\n" +
+			strings.Join(queries, "\n"))
+	if err != nil {
+		return err
+	}
+	_, err = seedFile.WriteString(
+		header + "\n" +
+			strings.Join(seeds, "\n"))
+	if err != nil {
+		return err
+	}
+	if inst.Fmt == "" {
+		cmd.Printf("Skipping Formatting as no formatter was configured\n")
+		return nil
+	}
+	cmd.Printf("Running formatter: %s\n", inst.Fmt)
+	// pipe each file that contains the string "queries" to the formatter
+	// and write the output to the file
+	err = filepath.WalkDir(".", walkDirFn(cmd, &inst))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func walkDirFn(cmd *cobra.Command, inst *DbConfig) func(path string, d fs.DirEntry, err error) error {
+	return func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		ext := filepath.Ext(path)
+		if ext != ".sql" {
+			cmd.Printf("Skipping file: %s\n", d.Name())
+			return nil
+		}
+
+		if strings.Contains(path, inst.FmtContains) {
+			// create a buffer
+			var b bytes.Buffer
+			split := strings.Split(inst.Fmt, " ")
+			cmd := exec.Command(split[0], split[1:]...)
+			cmd.Stdin, err = os.Open(path)
+			if err != nil {
+				return err
+			}
+			cmd.Stdout = &b
+			cmd.Stderr = os.Stderr
+			err := cmd.Run()
+			if err != nil {
+				return err
+			}
+
+			f, err := os.Create(path)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+			_, err = f.WriteString(b.String())
+			if err != nil {
+				return err
+			}
+
+			return nil
+		}
+		return nil
+	}
 }
 
 func catFiles(path string) ([]string, error) {
