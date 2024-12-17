@@ -22,6 +22,7 @@ type DbConfig struct {
 	OutputSeeds   string `yaml:"seed"`
 	Fmt           string `yaml:"fmt"`
 	FmtContains   string `yaml:"fmt-contains"`
+	MaxGoroutines int    `yaml:"max-goroutines"`
 }
 
 // rootCmd represents the base command when called without any subcommands
