@@ -22,6 +22,7 @@
             src = ./.;
             vendorHash = "sha256-/GsKVjvxQ97OrH04zM8tBnaElpOPrToYsgFWAtZLyLo";
           };
+          default = self.packages.${system}.sqlcquash;
         };
         defaultPackage = self.packages.${system}.sqlcquash;
       }
