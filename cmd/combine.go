@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"io/fs"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -137,26 +138,27 @@ func handleInstance(
 	cmd.Printf("Running formatter: %s\n", inst.Fmt)
 	// pipe each file that contains the string "queries" to the formatter
 	// and write the output to the file
-	err = filepath.WalkDir(".", walkDirFn(cmd, &inst))
+	err = filepath.WalkDir(".", walkDirFn(&inst))
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func walkDirFn(cmd *cobra.Command, inst *DbConfig) func(path string, d fs.DirEntry, err error) error {
-	return func(path string, d fs.DirEntry, err error) error {
+func walkDirFn(
+	inst *DbConfig,
+) func(path string, d fs.DirEntry, err error) error {
+	return func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		ext := filepath.Ext(path)
 		if ext != ".sql" {
-			cmd.Printf("Skipping file: %s\n", d.Name())
+			slog.Debug("Skipping file", "path", path)
 			return nil
 		}
 
 		if strings.Contains(path, inst.FmtContains) {
-			// create a buffer
 			var b bytes.Buffer
 			split := strings.Split(inst.Fmt, " ")
 			cmd := exec.Command(split[0], split[1:]...)
