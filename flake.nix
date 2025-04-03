@@ -11,7 +11,7 @@
         pkgs = import inputs.nixpkgs {inherit system overlays;};
         buildGoModule = pkgs.buildGoModule.override {go = pkgs.go_1_24;};
         buildWithSpecificGo = pkg: pkg.override {inherit buildGoModule;};
-      in {
+      in rec {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             # Go Tools
@@ -31,18 +31,18 @@
             (buildWithSpecificGo reftools)
           ];
         };
-        packages = {
-          inherit (pkgs) sqlcquash;
-          default = pkgs.sqlcquash;
-        };
-
-        overlays.default = final: prev: {
-          sqlcquash = prev.buildGoModule {
+        packages = rec {
+          sqlcquash = pkgs.buildGoModule {
             pname = "sqlcquash";
             version = "0.1.0";
             src = ./.;
             vendorHash = "sha256-/GsKVjvxQ97OrH04zM8tBnaElpOPrToYsgFWAtZLyLo";
           };
+          default = sqlcquash;
+        };
+
+        overlays.default = final: prev: {
+          inherit (packages) sqlcquash;
         };
       }
     );
