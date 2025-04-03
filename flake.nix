@@ -1,7 +1,7 @@
 {
   description = "A golang cli sqlc schema, query and migration collector.";
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?tag=24.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
   outputs = {flake-utils, ...} @ inputs:
