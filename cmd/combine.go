@@ -148,16 +148,19 @@ func handleInstance(
 func walkDirFn(
 	inst *DbConfig,
 ) func(path string, d fs.DirEntry, err error) error {
+	var (
+		ext string
+		f   *os.File
+	)
 	return func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		ext := filepath.Ext(path)
+		ext = filepath.Ext(path)
 		if ext != ".sql" {
 			slog.Debug("Skipping file", "path", path)
 			return nil
 		}
-
 		if strings.Contains(path, inst.FmtContains) {
 			var b bytes.Buffer
 			split := strings.Split(inst.Fmt, " ")
@@ -168,12 +171,12 @@ func walkDirFn(
 			}
 			cmd.Stdout = &b
 			cmd.Stderr = os.Stderr
-			err := cmd.Run()
+			err = cmd.Run()
 			if err != nil {
 				return err
 			}
 
-			f, err := os.Create(path)
+			f, err = os.Create(path)
 			if err != nil {
 				return err
 			}
