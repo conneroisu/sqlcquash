@@ -4,8 +4,40 @@ A simple tool to squash sql files into single files based on type.
 
 ## Installation
 
+### Go
+
 ```bash
 go install github.com/conneroisu/sqlcquash@latest
+```
+
+### Nix
+
+#### Flakes
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    sqlcquash.url = "github:conneroisu/sqlcquash";
+    flake-utils.url = "github:numtide/flake-utils";
+  }
+  outputs = { self, sqlcquash }:
+  flake-utils.lib.eachDefaultSystem (system:
+    let
+      pkgs = import nixpkgs {
+          inherit system; 
+          overlays = [ sqlcquash.overlays.default ];
+      };
+    in
+      {
+        devShells.deffault = pkgs.mkShell {
+          packages = with pkgs; [
+            sqlcquash
+          ];
+        };
+      }
+  );
+}
 ```
 
 ## Usage
