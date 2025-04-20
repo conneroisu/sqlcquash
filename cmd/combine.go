@@ -81,10 +81,13 @@ func handleInstance(
 		if err != nil {
 			return err
 		}
-		defer schemaFile.Close()
 		_, err = schemaFile.WriteString(
 			header + "\n" +
 				strings.Join(schemas, "\n"))
+		if err != nil {
+			return err
+		}
+		err = schemaFile.Close()
 		if err != nil {
 			return err
 		}
@@ -99,10 +102,13 @@ func handleInstance(
 		if err != nil {
 			return err
 		}
-		defer queryFile.Close()
 		_, err = queryFile.WriteString(
 			header + "\n" +
 				strings.Join(queries, "\n"))
+		if err != nil {
+			return err
+		}
+		err = queryFile.Close()
 		if err != nil {
 			return err
 		}
@@ -117,11 +123,13 @@ func handleInstance(
 		if err != nil {
 			return err
 		}
-		defer seedFile.Close()
-
 		_, err = seedFile.WriteString(
 			header + "\n" +
 				strings.Join(seeds, "\n"))
+		if err != nil {
+			return err
+		}
+		err = seedFile.Close()
 		if err != nil {
 			return err
 		}
@@ -180,8 +188,11 @@ func walkDirFn(
 			if err != nil {
 				return err
 			}
-			defer f.Close()
 			_, err = f.WriteString(b.String())
+			if err != nil {
+				return err
+			}
+			err = f.Close()
 			if err != nil {
 				return err
 			}
@@ -213,10 +224,17 @@ func readFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
 	content, err := io.ReadAll(file)
 	if err != nil {
 		return "", err
 	}
+	err = file.Close()
+	if err != nil {
+		return "", err
+	}
 	return string(content), nil
+}
+
+func init() {
+	rootCmd.AddCommand(combineCmd)
 }
