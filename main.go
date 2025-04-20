@@ -8,12 +8,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/conneroisu/sqlcquash/cmd"
+	sqlcquash "github.com/conneroisu/sqlcquash/cmd/sqlcquash"
 )
 
 func main() {
 	slog.SetDefault(DefaultLogger)
-	cmd.Execute()
+	sqlcquash.Execute()
 }
 
 // DefaultLogger is a default logger.
